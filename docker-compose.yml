@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: analytics-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-analytics_db}
+      MYSQL_USER: ${DB_USERNAME:-analytics_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - analytics-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: analytics-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      DB_URL: ${DB_URL:-jdbc:mysql://mysql:3306/analytics_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      DB_DRIVER: ${DB_DRIVER:-com.mysql.cj.jdbc.Driver}
+      DB_USERNAME: ${DB_USERNAME:-analytics_user}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JPA_DIALECT: ${JPA_DIALECT:-org.hibernate.dialect.MySQLDialect}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-validate}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      SLOW_QUERY_THRESHOLD: ${SLOW_QUERY_THRESHOLD:-500}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - analytics-net
+
+volumes:
+  mysql_data:
+
+networks:
+  analytics-net:
+    driver: bridge

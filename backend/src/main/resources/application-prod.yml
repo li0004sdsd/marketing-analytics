@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://mysql:3306/analytics_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${DB_USERNAME:analytics_user}
+    password: ${DB_PASSWORD:}
+  jpa:
+    database-platform: ${JPA_DIALECT:org.hibernate.dialect.MySQLDialect}
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+jwt:
+  secret: ${JWT_SECRET:}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+slow-query:
+  threshold-ms: ${SLOW_QUERY_THRESHOLD:500}
+
+logging:
+  level:
+    com.analytics: INFO
+    com.analytics.aspect: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN

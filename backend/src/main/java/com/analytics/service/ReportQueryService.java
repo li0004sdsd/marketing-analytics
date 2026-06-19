@@ -1,5 +1,6 @@
 package com.analytics.service;
 
+import com.analytics.annotation.SlowQueryLog;
 import com.analytics.dto.ReportQuery;
 import com.analytics.entity.Campaign;
 import com.analytics.entity.RoiReport;
@@ -31,6 +32,7 @@ public class ReportQueryService {
         this.campaignRepository = campaignRepository;
     }
 
+    @SlowQueryLog(thresholdMs = 500)
     public List<RoiReport> buildQuery(ReportQuery query) {
         User currentUser = getCurrentUser();
         String role = currentUser.getRole();
