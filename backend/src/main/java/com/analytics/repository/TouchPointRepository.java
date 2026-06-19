@@ -25,4 +25,11 @@ public interface TouchPointRepository extends JpaRepository<CampaignTouchPoint, 
 
     @Query("SELECT COUNT(c) FROM CampaignTouchPoint c WHERE c.campaignId = :campaignId")
     Long countByCampaignId(@Param("campaignId") Long campaignId);
+
+    @Query("SELECT COALESCE(SUM(c.revenue), 0) FROM CampaignTouchPoint c WHERE c.campaignId = :campaignId")
+    java.math.BigDecimal sumRevenueByCampaignId(@Param("campaignId") Long campaignId);
+
+    @Query("SELECT c.campaignId, COALESCE(SUM(c.revenue), 0) FROM CampaignTouchPoint c " +
+           "WHERE c.campaignId IN :campaignIds GROUP BY c.campaignId")
+    List<Object[]> sumRevenueByCampaignIdIn(@Param("campaignIds") Collection<Long> campaignIds);
 }
