@@ -22,6 +22,7 @@ public class UserBehaviorTrackingController {
         trackingService.recordEvent(
                 request.getUserId(),
                 request.getEventName(),
+                request.getSessionId(),
                 request.getProperties(),
                 request.getEventTime()
         );

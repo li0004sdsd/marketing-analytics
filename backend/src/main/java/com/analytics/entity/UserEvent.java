@@ -19,6 +19,9 @@ public class UserEvent {
     @Column(columnDefinition = "TEXT")
     private String properties;
 
+    @Column(name = "session_id", nullable = true)
+    private String sessionId;
+
     @Column(name = "event_time", nullable = false)
     private LocalDateTime eventTime;
 
@@ -31,6 +34,8 @@ public class UserEvent {
     public void setUserId(String userId) { this.userId = userId; }
     public String getEventName() { return eventName; }
     public void setEventName(String eventName) { this.eventName = eventName; }
+    public String getSessionId() { return sessionId; }
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
     public String getProperties() { return properties; }
     public void setProperties(String properties) { this.properties = properties; }
     public LocalDateTime getEventTime() { return eventTime; }

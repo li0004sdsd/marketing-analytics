@@ -31,7 +31,7 @@ public class UserBehaviorTrackingService {
     }
 
     @Transactional
-    public void recordEvent(String userId, String eventName, String properties, LocalDateTime eventTime) {
+    public void recordEvent(String userId, String eventName, String sessionId, String properties, LocalDateTime eventTime) {
         String idempotentKey = buildIdempotentKey(userId, eventName);
 
         if (isDuplicate(idempotentKey)) {
@@ -41,6 +41,7 @@ public class UserBehaviorTrackingService {
         EventOutbox outbox = new EventOutbox();
         outbox.setUserId(userId);
         outbox.setEventName(eventName);
+        outbox.setSessionId(sessionId);
         outbox.setProperties(properties);
         outbox.setEventTime(eventTime != null ? eventTime : LocalDateTime.now());
         outbox.setStatus(EventOutbox.OutboxStatus.PENDING);
@@ -75,6 +76,7 @@ public class UserBehaviorTrackingService {
                 UserEvent event = new UserEvent();
                 event.setUserId(outbox.getUserId());
                 event.setEventName(outbox.getEventName());
+                event.setSessionId(outbox.getSessionId());
                 event.setProperties(outbox.getProperties());
                 event.setEventTime(outbox.getEventTime());
                 events.add(event);
