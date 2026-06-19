@@ -4,6 +4,7 @@ import com.analytics.dto.AttributionResult;
 import com.analytics.dto.TouchPointDTO;
 import com.analytics.entity.AttributionConfig;
 import com.analytics.entity.AttributionModelType;
+import com.analytics.exception.AttributionCalculationException;
 import com.analytics.repository.AttributionConfigRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class AttributionService {
 
     public AttributionResult calculate(List<String> channels, Long configId) {
         AttributionConfig config = resolveConfig(configId);
-        AttributionModelType modelType = config.getModelType();
+        AttributionModelType modelType = getEffectiveModelType(config);
 
         AttributionResult result = new AttributionResult();
         result.setModelType(modelType.name().toLowerCase());
@@ -28,9 +29,7 @@ public class AttributionService {
         Map<String, Double> channelWeights = new LinkedHashMap<>();
 
         if (channels == null || channels.isEmpty()) {
-            result.setTouchPoints(touchPoints);
-            result.setChannelWeights(channelWeights);
-            return result;
+            throw new AttributionCalculationException("Touchpoints list cannot be null or empty");
         }
 
         switch (modelType) {
@@ -49,6 +48,13 @@ public class AttributionService {
         result.setTouchPoints(touchPoints);
         result.setChannelWeights(channelWeights);
         return result;
+    }
+
+    AttributionModelType getEffectiveModelType(AttributionConfig config) {
+        if (config.getModelType() == null) {
+            return AttributionModelType.LAST_CLICK;
+        }
+        return config.getModelType();
     }
 
     private void calculateLastClick(List<String> channels, List<TouchPointDTO> touchPoints, Map<String, Double> channelWeights) {
